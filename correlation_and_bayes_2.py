@@ -172,7 +172,7 @@ fig.add_annotation(x=(width_A0 + 1)/2, y=(height_A1_B0 + 1)/2,
 # Layout: remove axis ticks
 fig.update_xaxes(range=[0, 1], showticklabels=False)
 fig.update_yaxes(range=[0, 1], showticklabels=False)
-fig.update_layout(title="Area = Joint Probability",
+fig.update_layout(title="Joint Probability Chart",
                   width=800, height=600)
 
 fig.show()
