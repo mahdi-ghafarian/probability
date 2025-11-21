@@ -7,8 +7,8 @@ import plotly.express as px
 #------------------------------------------------------------------------------------
 n = 10000          # number of samples
 p_A = 0.4         # probability of event A being true (A = 1), e.g. cloudy today
-p_B = 0.6          # probability of event B being true (B = 1), e.g. raining today
-rho = 0.5        # desired correlation between A and B
+p_B = 0.5          # probability of event B being true (B = 1), e.g. raining today
+rho = 0.2        # desired correlation between A and B
 
 #------------------------------------------------------------------------------------
 # Joint Probability Calculation
@@ -130,6 +130,7 @@ print(f"Covariance(A, B) = {covariance:.4f}")
 # (A|B) =(BA)/(B)=(BA)/(BA + B~A) = p11/(P11 + P01)
 # (B|A) =(AB)/(A)=(AB)/(AB + A~B) = p11/(P11 + P10)
 
+from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 # Joint probabilities and frequencies
@@ -165,98 +166,158 @@ colors = {
     'P11': '#FFB6C1',  # rose pink
 }
 
-fig = go.Figure()
+# Combine all 8 conditional probabilities into one list
+labels_all = [
+    '~A|~B', 'A|~B', '~A|B', 'A|B',  # P(A|B)
+    '~B|~A', 'B|~A', '~B|A', 'B|A'   # P(B|A)
+]
+values_all = [
+    P_A0_given_B0, P_A1_given_B0, P_A0_given_B1, P_A1_given_B1,
+    P_B0_given_A0, P_B1_given_A0, P_B0_given_A1, P_B1_given_A1
+]
 
-# --- Left: P(A|B) ---
+# Sort all together in descending order
+sorted_all = sorted(zip(values_all, labels_all), reverse=True)
 
-# Column widths
+# Create subplots: 1 row, 3 columns (bar chart first)
+fig = make_subplots(rows=1, cols=3, column_widths=[0.4, 0.3, 0.3],
+                    subplot_titles=("Reasoning Power", "P(A|B)", "P(B|A)"))
+
+# --- Panel 1: Sorted Bar Chart ---
+fig.add_trace(go.Bar(
+    x=[label for _, label in sorted_all],
+    y=[val for val, _ in sorted_all],
+    marker_color=['#A8E6CF', '#D1C4E9', '#FFD3B6', '#FFB6C1', '#A8E6CF', '#FFD3B6', '#D1C4E9', '#FFB6C1'],
+    text=[f"{val:.2f}" for val, _ in sorted_all],
+    textposition='auto',
+    name="All Conditional Probabilities"
+), row=1, col=1)
+
+# Add horizontal line for P(A)
+fig.add_shape(type="line",
+              x0=-0.5, x1=6.75,  # span across all bars
+              y0=p_A, y1=p_A,
+              line=dict(color="grey", dash="dot", width=1),
+              xref='x1', yref='y1')  # first subplot (bar chart)
+
+
+# Add horizontal line for P(~A)
+fig.add_shape(type="line",
+              x0=-0.5, x1=6.75,  # span across all bars
+              y0=1-p_A, y1=1-p_A,
+              line=dict(color="grey", dash="dot", width=1),
+              xref='x1', yref='y1')  # first subplot (bar chart)
+
+# Add horizontal line for P(B)
+fig.add_shape(type="line",
+              x0=-0.5, x1=6.75,
+              y0=p_B, y1=p_B,
+              line=dict(color="grey", dash="dot", width=1),
+              xref='x1', yref='y1')
+
+# Add horizontal line for P(~B)
+fig.add_shape(type="line",
+              x0=-0.5, x1=6.75,
+              y0=1-p_B, y1=1-p_B,
+              line=dict(color="grey", dash="dot", width=1),
+              xref='x1', yref='y1')
+
+# Add annotations for these lines
+fig.add_annotation(x=7.5, y=p_A,
+                   text=f"P(A) = {p_A:.2f}",
+                   showarrow=False, font=dict(color="black", size=12),
+                   xref='x1', yref='y1')
+if(p_A != (1-p_A)):
+    fig.add_annotation(x=7.5, y=1-p_A,
+                   text=f"P(~A) = {1-p_A:.2f}",
+                   showarrow=False, font=dict(color="black", size=12),
+                   xref='x1', yref='y1')    
+
+
+if(p_B != (1-p_A) and p_B != p_A):
+    fig.add_annotation(x=7.5, y=p_B,
+                   text=f"P(B) = {p_B:.2f}",
+                   showarrow=False, font=dict(color="black", size=12),
+                   xref='x1', yref='y1')
+
+
+if((1-p_B) != (1-p_A) and (1-p_B) != p_A and (1-p_B) != p_B):
+    fig.add_annotation(x=7.5, y=1-p_B,
+                    text=f"P(~B) = {p_B:.2f}",
+                    showarrow=False, font=dict(color="black", size=12),
+                    xref='x1', yref='y1')
+
+
+# --- Panel 2: P(A|B) rectangles ---
 x0 = 0
 x1 = P_B0
 x2 = x1 + P_B1
 
-# B=0 column
 fig.add_shape(type="rect", x0=x0, x1=x1, y0=0, y1=P_A0_given_B0,
-              fillcolor=colors['P00'], line=dict(color="black"))
+              fillcolor=colors['P00'], line=dict(color="black"), row=1, col=2)
 fig.add_shape(type="rect", x0=x0, x1=x1, y0=P_A0_given_B0, y1=1,
-              fillcolor=colors['P10'], line=dict(color="black"))
-
-# B=1 column
+              fillcolor=colors['P10'], line=dict(color="black"), row=1, col=2)
 fig.add_shape(type="rect", x0=x1, x1=x2, y0=0, y1=P_A0_given_B1,
-              fillcolor=colors['P01'], line=dict(color="black"))
+              fillcolor=colors['P01'], line=dict(color="black"), row=1, col=2)
 fig.add_shape(type="rect", x0=x1, x1=x2, y0=P_A0_given_B1, y1=1,
-              fillcolor=colors['P11'], line=dict(color="black"))
+              fillcolor=colors['P11'], line=dict(color="black"), row=1, col=2)
 
 # Annotations for P(A|B)
 fig.add_annotation(x=(x0 + x1)/2, y=P_A0_given_B0/2,
     text=f"P00 = {P00:.2f}<br>P(~A|~B) = {P_A0_given_B0:.2f}<br>N = {freqs['P00']}",
-    showarrow=False, font=dict(color="black", size=12))
+    showarrow=False, font=dict(color="black", size=12), row=1, col=2)
 fig.add_annotation(x=(x0 + x1)/2, y=(P_A0_given_B0 + 1)/2,
     text=f"P10 = {P10:.2f}<br>P(A|~B) = {P_A1_given_B0:.2f}<br>N = {freqs['P10']}",
-    showarrow=False, font=dict(color="black", size=12))
+    showarrow=False, font=dict(color="black", size=12), row=1, col=2)
 fig.add_annotation(x=(x1 + x2)/2, y=P_A0_given_B1/2,
     text=f"P01 = {P01:.2f}<br>P(~A|B) = {P_A0_given_B1:.2f}<br>N = {freqs['P01']}",
-    showarrow=False, font=dict(color="black", size=12))
+    showarrow=False, font=dict(color="black", size=12), row=1, col=2)
 fig.add_annotation(x=(x1 + x2)/2, y=(P_A0_given_B1 + 1)/2,
     text=f"P11 = {P11:.2f}<br>P(A|B) = {P_A1_given_B1:.2f}<br>N = {freqs['P11']}",
-    showarrow=False, font=dict(color="black", size=12))
+    showarrow=False, font=dict(color="black", size=12), row=1, col=2)
 
-# --- Right: P(B|A) ---
-
-# Row heights
+# --- Panel 3: P(B|A) rectangles ---
 y0 = 0
 y1 = P_A0
 y2 = y1 + P_A1
 
-# A=0 row
-fig.add_shape(type="rect", x0=1.1, x1=1.1 + P_B0_given_A0, y0=y0, y1=y1,
-              fillcolor=colors['P00'], line=dict(color="black"))
-fig.add_shape(type="rect", x0=1.1 + P_B0_given_A0, x1=1.1 + 1, y0=y0, y1=y1,
-              fillcolor=colors['P01'], line=dict(color="black"))
-
-# A=1 row
-fig.add_shape(type="rect", x0=1.1, x1=1.1 + P_B0_given_A1, y0=y1, y1=y2,
-              fillcolor=colors['P10'], line=dict(color="black"))
-fig.add_shape(type="rect", x0=1.1 + P_B0_given_A1, x1=1.1 + 1, y0=y1, y1=y2,
-              fillcolor=colors['P11'], line=dict(color="black"))
+fig.add_shape(type="rect", x0=0, x1=P_B0_given_A0, y0=y0, y1=y1,
+              fillcolor=colors['P00'], line=dict(color="black"), row=1, col=3)
+fig.add_shape(type="rect", x0=P_B0_given_A0, x1=1, y0=y0, y1=y1,
+              fillcolor=colors['P01'], line=dict(color="black"), row=1, col=3)
+fig.add_shape(type="rect", x0=0, x1=P_B0_given_A1, y0=y1, y1=y2,
+              fillcolor=colors['P10'], line=dict(color="black"), row=1, col=3)
+fig.add_shape(type="rect", x0=P_B0_given_A1, x1=1, y0=y1, y1=y2,
+              fillcolor=colors['P11'], line=dict(color="black"), row=1, col=3)
 
 # Annotations for P(B|A)
-fig.add_annotation(x=1.1 + P_B0_given_A0/2, y=(y0 + y1)/2,
+fig.add_annotation(x=P_B0_given_A0/2, y=(y0 + y1)/2,
     text=f"P00 = {P00:.2f}<br>P(~B|~A) = {P_B0_given_A0:.2f}<br>N = {freqs['P00']}",
-    showarrow=False, font=dict(color="black", size=12))
-fig.add_annotation(x=1.1 + (P_B0_given_A0 + 1)/2, y=(y0 + y1)/2,
+    showarrow=False, font=dict(color="black", size=12), row=1, col=3)
+fig.add_annotation(x=(P_B0_given_A0 + 1)/2, y=(y0 + y1)/2,
     text=f"P01 = {P01:.2f}<br>P(B|~A) = {P_B1_given_A0:.2f}<br>N = {freqs['P01']}",
-    showarrow=False, font=dict(color="black", size=12))
-fig.add_annotation(x=1.1 + P_B0_given_A1/2, y=(y1 + y2)/2,
+    showarrow=False, font=dict(color="black", size=12), row=1, col=3)
+fig.add_annotation(x=P_B0_given_A1/2, y=(y1 + y2)/2,
     text=f"P10 = {P10:.2f}<br>P(~B|A) = {P_B0_given_A1:.2f}<br>N = {freqs['P10']}",
-    showarrow=False, font=dict(color="black", size=12))
-fig.add_annotation(x=1.1 + (P_B0_given_A1 + 1)/2, y=(y1 + y2)/2,
+    showarrow=False, font=dict(color="black", size=12), row=1, col=3)
+fig.add_annotation(x=(P_B0_given_A1 + 1)/2, y=(y1 + y2)/2,
     text=f"P11 = {P11:.2f}<br>P(B|A) = {P_B1_given_A1:.2f}<br>N = {freqs['P11']}",
-    showarrow=False, font=dict(color="black", size=12))
+    showarrow=False, font=dict(color="black", size=12), row=1, col=3)
+
+# Hide tick labels for rectangle charts
+fig.update_xaxes(showticklabels=False, row=1, col=2)
+fig.update_yaxes(showticklabels=False, row=1, col=2)
+fig.update_xaxes(showticklabels=False, row=1, col=3)
+fig.update_yaxes(showticklabels=False, row=1, col=3)
 
 # Layout
-fig.update_xaxes(
-    range=[0, 2.2],
-    tickvals=[P_B0/2, P_B0 + P_B1/2],  # centers of columns
-    ticktext=["B=0", "B=1"],
-    showline=True,
-    zeroline=False
-)
-
-fig.update_yaxes(
-    range=[0, 1],
-    tickvals=[0.25, 0.75],  # approximate positions
-    ticktext=["A=0", "A=1"],
-    showline=True,
-    zeroline=False
-)
-
-
 fig.update_layout(
-    title="Conditional Probability Views: P(A|B) and P(B|A)",
-    width=1100,
+    title=f"Conditional Probabilities, P(A)={p_A:.2f}, P(B)={p_B:.2f}, ρ={rho:.2f}",
+    width=1800,
     height=600,
     plot_bgcolor='white',
-    paper_bgcolor='white'
+    paper_bgcolor='white',
+    barmode='group'
 )
 
 fig.show()
