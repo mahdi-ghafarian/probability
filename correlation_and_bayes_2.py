@@ -101,7 +101,7 @@ covariance = np.cov(df['A'], df['B'])[0, 1]
 print(f"Covariance(A, B) = {covariance:.4f}")
 
 #------------------------------------------------------------------------------------
-# Visualization
+# # Bar Chart of Joint Outcome Frequencies
 #------------------------------------------------------------------------------------
 
 # import plotly.express as px
@@ -122,6 +122,14 @@ print(f"Covariance(A, B) = {covariance:.4f}")
 
 
 #--------------------------------------------------------------------------------------
+# Joint Probability Chart
+# as rectangles with areas proportional to joint probabilities
+#--------------------------------------------------------------------------------------
+
+# Interpretation of conditional probabilities:
+# (A|B) =(BA)/(B)=(BA)/(BA + B~A) = p11/(P11 + P01)
+# (B|A) =(AB)/(A)=(AB)/(AB + A~B) = p11/(P11 + P10)
+
 import plotly.graph_objects as go
 
 # Compute column widths based on joint probabilities
@@ -157,16 +165,16 @@ fig.add_shape(type="rect", x0=width_A0, x1=1, y0=height_A1_B0, y1=1,
 
 # ✅ Add labels in requested format with probabilities and frequencies
 fig.add_annotation(x=width_A0/2, y=height_A0_B0/2,
-                   text=f"(A=0,B=0)<br>P={P00:.3f}<br>N={freq_00}", showarrow=False,
+                   text=f"(A=0,B=0)<br>P00={P00:.3f}<br>N={freq_00}", showarrow=False,
                    font=dict(size=14, color="black"))
 fig.add_annotation(x=width_A0/2, y=(height_A0_B0 + 1)/2,
-                   text=f"(A=0,B=1)<br>P={P01:.3f}<br>N={freq_01}", showarrow=False,
+                   text=f"(A=0,B=1)<br>P01={P01:.3f}<br>N={freq_01}", showarrow=False,
                    font=dict(size=14, color="white"))
 fig.add_annotation(x=(width_A0 + 1)/2, y=height_A1_B0/2,
-                   text=f"(A=1,B=0)<br>P={P10:.3f}<br>N={freq_10}", showarrow=False,
+                   text=f"(A=1,B=0)<br>P10={P10:.3f}<br>N={freq_10}", showarrow=False,
                    font=dict(size=14, color="black"))
 fig.add_annotation(x=(width_A0 + 1)/2, y=(height_A1_B0 + 1)/2,
-                   text=f"(A=1,B=1)<br>P={P11:.3f}<br>N={freq_11}", showarrow=False,
+                   text=f"(A=1,B=1)<br>P11={P11:.3f}<br>N={freq_11}", showarrow=False,
                    font=dict(size=14, color="white"))
 
 # Layout: remove axis ticks
