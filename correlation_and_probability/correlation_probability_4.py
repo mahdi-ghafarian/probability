@@ -6,9 +6,9 @@ import plotly.express as px
 # Parameters
 #------------------------------------------------------------------------------------
 n = 1000          # number of samples
-p_A = 0.2         # probability of event A being true (A = 1), e.g. cloudy today
-p_B = 0.7          # probability of event B being true (B = 1), e.g. raining today
-rho = 0.2        # desired correlation between A and B
+p_A = 0.5         # probability of event A being true (A = 1), e.g. cloudy today
+p_B = 0.5          # probability of event B being true (B = 1), e.g. raining today
+rho = -0.2        # desired correlation between A and B
 
 #------------------------------------------------------------------------------------
 # Joint Probability Calculation
@@ -270,7 +270,7 @@ fig1.add_shape(type="line", x0=-0.5, x1=7.5, y0=1-p_B, y1=1-p_B,
                line=dict(color="grey", dash="dot", width=1), xref='x2', yref='y2')
 
 fig1.update_layout(
-    title=f"Conditional Probabilities - P(A)={p_A:.2f}, P(B)={p_B:.2f}, ρ={rho:.2f}",
+    title=f"Conditional Probabilities for P(A)={p_A:.2f}, P(B)={p_B:.2f}, ρ={rho:.2f}",
     width=1600,
     height=600,
     plot_bgcolor='white',
@@ -339,7 +339,7 @@ fig2.update_xaxes(showticklabels=False, row=1, col=2)
 fig2.update_yaxes(showticklabels=False, row=1, col=2)
 
 fig2.update_layout(
-    title=f"Conditional Probabilities - P(A)={p_A:.2f}, P(B)={p_B:.2f}, ρ={rho:.2f}",
+    title=f"Conditional Probabilities for P(A)={p_A:.2f}, P(B)={p_B:.2f}, ρ={rho:.2f}",
     width=1600,
     height=600,
     plot_bgcolor='white',
