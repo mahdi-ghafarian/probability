@@ -94,6 +94,13 @@ print(f"Joint Probabilities: P11={P11:.4f}, P10={P10:.4f}, P01={P01:.4f}, P00={P
 #------------------------------------------------------------------------------------
 # Summary Statistics for A and B
 #------------------------------------------------------------------------------------
+# COV(A, B) = E[AB] - E[A]E[B]
+# For binary variables, E[X] = P(X=1)
+# COV(A, B) = P(A=1, B=1) - P(A=1)P(B=1)
+# COV(A, B) = P(AB) - P(A)P(B)
+# INDEPENDENCE =>  P(AB) = P(A)P(B) => COV(A, B) = 0 => CORRELATION = 0
+# CORRELATION = 0 => COV(A, B) = 0 => P(AB) = P(A)P(B) => INDEPENDENCE
+
 print("\n Summary Statistics:")
 print(f"A: mean={df['A'].mean():.4f}, var={df['A'].var():.4f}, std={df['A'].std():.4f}")
 print(f"B: mean={df['B'].mean():.4f}, var={df['B'].var():.4f}, std={df['B'].std():.4f}")
