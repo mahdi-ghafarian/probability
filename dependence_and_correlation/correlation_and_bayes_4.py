@@ -7,8 +7,8 @@ import plotly.express as px
 #------------------------------------------------------------------------------------
 n = 1000          # number of samples
 p_A = 0.2         # probability of event A being true (A = 1), e.g. cloudy today
-p_B = 0.3          # probability of event B being true (B = 1), e.g. raining today
-rho = 0.1        # desired correlation between A and B
+p_B = 0.7          # probability of event B being true (B = 1), e.g. raining today
+rho = 0.2        # desired correlation between A and B
 
 #------------------------------------------------------------------------------------
 # Joint Probability Calculation
